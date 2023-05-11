@@ -3,7 +3,20 @@ class Demo1 extends AdventureScene {
         super("demo1", "First Room");
     }
 
+    preload(){
+        this.load.path = "./assets/";
+        this.load.image("door", "door@2x.png");
+        this.load.image("keyboard", "keyboard@2x.png");
+        this.load.image("monitor", "monitor@2x.png");
+        this.load.image("mouse", "mouse@2x.png");
+        this.load.image("paper stack", "paper stack@2x.png");
+        this.load.image("pen cup", "pen cup_1@2x.png");
+        this.load.image("scene1", "scene1-80.jpg");
+        this.load.image("window", "window@2x.png");
+    }
+
     onEnter() {
+        let bg = this.add.image(this.w/2, this.h/2, "scene1").setCrop(0, 0, this.w*0.75, this.h)
 
         let clip = this.add.text(this.w * 0.3, this.w * 0.3, "📎 paperclip")
             .setFontSize(this.s * 2)
