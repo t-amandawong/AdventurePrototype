@@ -16,7 +16,10 @@ class Demo1 extends AdventureScene {
     }
 
     onEnter() {
-        let bg = this.add.image(this.w/2, this.h/2, "scene1").setCrop(0, 0, this.w*0.75, this.h)
+        let bg = this.add.image(this.w/2, this.h/2, "scene1")
+        .setCrop(0, 0, this.w*0.75, this.h);
+
+        
 
         let clip = this.add.text(this.w * 0.3, this.w * 0.3, "📎 paperclip")
             .setFontSize(this.s * 2)
@@ -107,15 +110,103 @@ class Demo2 extends AdventureScene {
 
 class Intro extends Phaser.Scene {
     constructor() {
-        super('intro')
+        super("intro");
+    }
+    preload() {
+        this.load.path = "./assets/";
+        this.load.image("studiologo", "pandared@2x.png");
+        this.cameras.main.setBackgroundColor(0xaea2ba)
     }
     create() {
-        this.add.text(50,50, "Adventure awaits!").setFontSize(50);
-        this.add.text(50,100, "Click anywhere to begin.").setFontSize(20);
-        this.input.on('pointerdown', () => {
-            this.cameras.main.fade(1000, 0,0,0);
-            this.time.delayedCall(1000, () => this.scene.start('demo1'));
+        this.w = this.game.config.width;
+        this.h = this.game.config.height;
+
+        let title = this.add.text(this.w/2, this.h+100, "title").setScale(1.3);
+        let logo = this.add.image(this.w/2, this.h/2, "studiologo").setAlpha(1);
+        let start = this.add.text(960, 540, "click anywhere to start");
+        start.setFontSize(40).setOrigin(0.5).setAlpha(0);
+        let play = this.add.text(this.w/2, this.h/2 + 50, "play", {
+            fontFamily: "Baloo2-Regular", 
+            fontSize: 100
+        }).setOrigin(0.5).setAlpha(0).setInteractive();
+        let quit = this.add.text(this.w/2, this.h/2 + 250, "quit", {
+            fontFamily: "Baloo2-Regular",
+            fontSize: 100
+        }).setOrigin(0.5).setAlpha(0).setInteractive();
+
+        const tweens_chain = this.tweens.chain({
+            tweens: [
+                {
+                    targets: logo,
+                    alpha: {from: 0, to: 1},
+                    duration: 2300,
+                    ease: "Quad.easeInOut",
+                    yoyo: true 
+                },
+                {
+                    targets: title,
+                    y: this.h/2.5,
+                    duration: 2500,
+                    ease: "Back.easeOut",
+                }, 
+                {
+                    targets: start,
+                    alpha: {from: 0.3, to: 1},
+                    duration: 1000,
+                    ease: "Quad.easeInOut",
+                    repeat: -1,
+                    yoyo: true
+                }
+            ]
         });
+
+        this.input.once('pointerdown', ()=> {
+            tweens_chain.stop();
+            logo.setAlpha(0);
+            title.setY(this.h/2.5);
+            this.tweens.add({
+                targets: title,
+                y: this.h/2.5 - 100,
+                ease: "Quad.easeOut"
+            });
+            this.tweens.add({
+                targets: start,
+                alpha: 0,
+                ease: "Quad.easeOut"
+            });
+            this.tweens.add({
+                targets: [play, quit],
+                alpha: 1,
+                ease: "Quad.easeOut"
+            });
+        });
+
+        play.on('pointerover', ()=> {
+            play.setScale(1.1);
+        });
+
+        play.on('pointerout', ()=> {
+            play.setScale(1);
+        });
+
+        play.on('pointerdown', ()=> {
+            this.scene.start('demo1');
+        });
+
+        quit.on('pointerover', ()=> {
+            quit.setScale(1.1);
+        });
+
+        quit.on('pointerout', ()=> {
+            quit.setScale(1);
+        });
+
+        quit.on('pointerdown', ()=> {
+            this.scene.start('outro');
+        });
+
+    }
+    update(){
     }
 }
 
