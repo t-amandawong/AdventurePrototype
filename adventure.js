@@ -19,10 +19,10 @@ class AdventureScene extends Phaser.Scene {
         this.cameras.main.setBackgroundColor('#444');
         this.cameras.main.fadeIn(this.transitionDuration, 0, 0, 0);
 
-        this.add.rectangle(this.w * 0.75, 0, this.w * 0.25, this.h).setOrigin(0, 0).setFillStyle(0xFFFFFF, 0.5);
+        this.add.rectangle(this.w * 0.75, 0, this.w * 0.25, this.h).setOrigin(0, 0).setFillStyle(0xaea2ba);
         this.add.text(this.w * 0.75 + this.s, this.s)
             .setText(this.name)
-            .setStyle({ fontSize: `${3 * this.s}px` })
+            .setStyle({ fontFamily: "ChakraPetch-Medium", fontSize: `${3 * this.s}px` })
             .setWordWrapWidth(this.w * 0.25 - 2 * this.s);
         
         this.messageBox = this.add.text(this.w * 0.75 + this.s, this.h * 0.33)
@@ -37,8 +37,8 @@ class AdventureScene extends Phaser.Scene {
         this.inventoryTexts = [];
         this.updateInventory();
 
-        this.add.text(this.w-3*this.s, this.h-3*this.s, "📺")
-            .setStyle({ fontSize: `${2 * this.s}px` })
+        this.add.text(this.w-3*this.s, this.h-4*this.s, "♥")
+            .setStyle({ fontSize: `${3 * this.s}px` })
             .setInteractive({useHandCursor: true})
             .on('pointerover', () => this.showMessage('Fullscreen?'))
             .on('pointerdown', () => {
@@ -146,5 +146,22 @@ class AdventureScene extends Phaser.Scene {
 
     onEnter() {
         console.warn('This AdventureScene did not implement onEnter():', this.constructor.name);
+    }
+
+    describe(obj, message1="", message2="") {
+        obj.on("pointerover", () => this.showMessage(message1))
+        obj.on("pointerdown", () => this.showMessage(message2))
+    }
+
+    takeAndDescribe(obj, itemname="", message1="", message2="") {
+        obj.on("pointerdown", () => {
+            if (!this.hasItem(itemname)) {
+                this.gainItem(itemname)
+                this.showMessage(message1)
+            }
+            else {
+                this.showMessage(message2)
+            }
+        });
     }
 }
