@@ -21,7 +21,7 @@ class Bedroom extends AdventureScene {
         let door = this.add.image(this.w * 0.09, this.h * 0.57, "door")
             .setScale(0.5)
             .setInteractive()
-            .on('pointerdown', () => this.gotoScene('demo2'));
+            .on('pointerdown', () => this.gotoScene('hallway'));
         this.describe(door, "A door. Where does it lead?", "You open the door to the hallway.")
 
         let keyboard = this.add.image(this.w * 0.5, this.h * 0.68, "keyboard")
@@ -37,6 +37,7 @@ class Bedroom extends AdventureScene {
         let mouse = this.add.image(this.w * 0.43, this.h * 0.68, "mouse")
             .setScale(0.5)
             .setInteractive()
+            .on('pointerdown', () => pfp.setAlpha(1))
         this.describe(mouse, "A hot pink wireless mouse.", "The monitor bloomed to life.");
 
         let paper_stack = this.add.image(this.w * 0.6, this.h * 0.67, "paper stack")
@@ -49,21 +50,81 @@ class Bedroom extends AdventureScene {
             .setScale(0.5)
             .setInteractive()
             .on('pointerover', () => this.showMessage("A cup full of pens."));
-        this.describe(pen_cup, "pen", "You take a pen.", "You have already taken a pen.")
+        this.takeAndDescribe(pen_cup, "pen", "You take a pen.", "You have already taken a pen.")
         
         let window = this.add.image(this.w * 0.3, this.h * 0.4, "window")
             .setScale(0.5)
             .setInteractive()
         this.describe(window, "A window that looks outside.", "There seems to be a garden beyond the window.")
         
-        let pfp = this.add.circle(this.w*0.5,this.h*0.55, 20, 0xcecacf, 0)
+        let pfp = this.add.circle(this.w*0.5,this.h*0.55, 20, 0xcecacf, 1)
 
     }
 }
 
-class Demo2 extends AdventureScene {
+class Hallway extends AdventureScene {
     constructor() {
-        super("demo2", "The second room has a long name (it truly does).");
+        super("hallway", "Hallway");
+    }
+    onEnter() {
+        let bed_door = this.add.text(this.w * 0.5, this.h * 0.4, "🚪")
+            .setFontSize(this.s * 30)
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.gotoScene('bedroom');
+            });
+        this.describe(bed_door, "A door that goes back to the bedroom.", "You open the door to the bedroom.")
+
+        let finish = this.add.text(this.w * 0.6, this.w * 0.2, '(finish the game)')
+            .setInteractive()
+            .on('pointerover', () => {
+                this.showMessage('*giggles*');
+                this.tweens.add({
+                    targets: finish,
+                    x: this.s + (this.h - 2 * this.s) * Math.random(),
+                    y: this.s + (this.h - 2 * this.s) * Math.random(),
+                    ease: 'Sine.inOut',
+                    duration: 500
+                });
+            })
+            .on('pointerdown', () => this.gotoScene('outro'));
+    }
+}
+
+class Garden extends AdventureScene {
+    constructor() {
+        super("garden", "Garden");
+    }
+    onEnter() {
+        this.add.text(this.w * 0.3, this.w * 0.4, "just go back")
+            .setFontSize(this.s * 2)
+            .setInteractive()
+            .on('pointerover', () => {
+                this.showMessage("You've got no other choice, really.");
+            })
+            .on('pointerdown', () => {
+                this.gotoScene('bedroom');
+            });
+
+        let finish = this.add.text(this.w * 0.6, this.w * 0.2, '(finish the game)')
+            .setInteractive()
+            .on('pointerover', () => {
+                this.showMessage('*giggles*');
+                this.tweens.add({
+                    targets: finish,
+                    x: this.s + (this.h - 2 * this.s) * Math.random(),
+                    y: this.s + (this.h - 2 * this.s) * Math.random(),
+                    ease: 'Sine.inOut',
+                    duration: 500
+                });
+            })
+            .on('pointerdown', () => this.gotoScene('outro'));
+    }
+}
+
+class Pond extends AdventureScene {
+    constructor() {
+        super("pond", "Pond");
     }
     onEnter() {
         this.add.text(this.w * 0.3, this.w * 0.4, "just go back")
@@ -105,6 +166,17 @@ class Intro extends Phaser.Scene {
         this.w = this.game.config.width;
         this.h = this.game.config.height;
 
+        //scene shortcuts
+        let scene1 = this.input.keyboard.addKey("1");
+        let scene2 = this.input.keyboard.addKey("2");
+        let scene3 = this.input.keyboard.addKey("3");
+        let scene4 = this.input.keyboard.addKey("4");
+        scene1.on('down', ()=> this.scene.start('bedroom'));
+        scene2.on('down', ()=> this.scene.start('hallway'));
+        scene3.on('down', ()=> this.scene.start('garden'));
+        scene4.on('down', ()=> this.scene.start('table'));
+
+
         let title = this.add.text(this.w/2, this.h+100, "title", {
             fontFamily: "ChakraPetch-Medium",
             fontSize: 200
@@ -112,7 +184,7 @@ class Intro extends Phaser.Scene {
         let logo = this.add.image(this.w/2, this.h/2, "studiologo").setAlpha(1);
         let start = this.add.text(this.w/2, this.h/2, "click anywhere to start")
             .setFontSize(40).setOrigin(0.5).setAlpha(0);
-        let play = this.add.text(this.w/2, this.h/2 + 50, "play", {
+        let play = this.add.text(this.w/2, this.h/2 + 100, "play", {
             fontFamily: "Baloo2-Regular", 
             fontSize: 100
         }).setOrigin(0.5).setAlpha(0).setInteractive();
@@ -198,7 +270,7 @@ const game = new Phaser.Game({
         width: 1920,
         height: 1080
     },
-    scene: [Intro, Bedroom, Demo2, Outro],
+    scene: [Intro, Bedroom, Hallway, Garden, Pond, Outro],
     title: "Adventure Game",
 });
 
