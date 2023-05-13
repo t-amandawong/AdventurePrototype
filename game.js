@@ -34,11 +34,19 @@ class Bedroom extends AdventureScene {
             .setInteractive()
         this.describe(monitor, "A state-of-the-art desktop monitor.", "It's not touchscreen.")
 
+        let pfp = this.add.circle(this.w*0.5,this.h*0.55, 20, 0xcecacf).setAlpha(0)
+
         let mouse = this.add.image(this.w * 0.43, this.h * 0.68, "mouse")
             .setScale(0.5)
             .setInteractive()
-            .on('pointerdown', () => pfp.setAlpha(1))
-        this.describe(mouse, "A hot pink wireless mouse.", "The monitor bloomed to life.");
+            .once('pointerdown', () => {
+                this.tweens.add({
+                    targets: pfp,
+                    alpha: {from:0, to: 1},
+                    duration: 700
+                })
+            })
+        this.describe(mouse, "A hot pink wireless mouse.", "The monitor turned on.");
 
         let paper_stack = this.add.image(this.w * 0.6, this.h * 0.67, "paper stack")
             .setScale(0.5)
@@ -56,9 +64,6 @@ class Bedroom extends AdventureScene {
             .setScale(0.5)
             .setInteractive()
         this.describe(window, "A window that looks outside.", "There seems to be a garden beyond the window.")
-        
-        let pfp = this.add.circle(this.w*0.5,this.h*0.55, 20, 0xcecacf, 1)
-
     }
 }
 
@@ -67,58 +72,79 @@ class Hallway extends AdventureScene {
         super("hallway", "Hallway");
     }
     onEnter() {
-        let bed_door = this.add.text(this.w * 0.5, this.h * 0.4, "🚪")
-            .setFontSize(this.s * 30)
+        let bed_door = this.add.text(this.w * 0.5, this.h * 0.4, "bedroom door🚪")
+            .setFontSize(this.s * 2)
             .setInteractive()
             .on('pointerdown', () => {
                 this.gotoScene('bedroom');
             });
         this.describe(bed_door, "A door that goes back to the bedroom.", "You open the door to the bedroom.")
 
-        let finish = this.add.text(this.w * 0.6, this.w * 0.2, '(finish the game)')
+        let key = this.add.text(this.w * 0.2, this.h * 0.3, 'key 🔑')
+            .setFontSize(this.s *2)
             .setInteractive()
-            .on('pointerover', () => {
-                this.showMessage('*giggles*');
+            .on('pointerdown', () => {
+                this.gainItem('key');
                 this.tweens.add({
-                    targets: finish,
-                    x: this.s + (this.h - 2 * this.s) * Math.random(),
-                    y: this.s + (this.h - 2 * this.s) * Math.random(),
-                    ease: 'Sine.inOut',
-                    duration: 500
+                    targets: key,
+                    y: `-=${2 * this.s}`,
+                    alpha: { from: 1, to: 0 },
+                    duration: 500,
+                    onComplete: () => key.destroy()
                 });
             })
-            .on('pointerdown', () => this.gotoScene('outro'));
+        this.describe(key, "A key.", "It doesn't look like it fits with any of the doors.")
+
+        let back_door = this.add.text(this.w * 0.4, this.h * 0.5, "back door🚪")
+            .setOrigin(0.5)
+            .setFontSize(this.s * 2)
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.gotoScene('garden')
+            })
+        this.describe(back_door, "A door that leads to the garden.", "The door creaks as it opens.")
+        }
     }
-}
 
 class Garden extends AdventureScene {
     constructor() {
         super("garden", "Garden");
     }
     onEnter() {
-        this.add.text(this.w * 0.3, this.w * 0.4, "just go back")
+        for (let i = 1; i < 11; i++) {
+            this.add.text(this.w * 0.075 * i - (this.s * 10), this.h * 0.3, '🌳').setFontSize(this.s * 10)
+        }
+
+        let rabbit = this.add.text(this.w * 0.4, this.h * 0.65, "rabbit 🐇")
             .setFontSize(this.s * 2)
             .setInteractive()
-            .on('pointerover', () => {
-                this.showMessage("You've got no other choice, really.");
-            })
             .on('pointerdown', () => {
-                this.gotoScene('bedroom');
-            });
-
-        let finish = this.add.text(this.w * 0.6, this.w * 0.2, '(finish the game)')
-            .setInteractive()
-            .on('pointerover', () => {
-                this.showMessage('*giggles*');
                 this.tweens.add({
-                    targets: finish,
-                    x: this.s + (this.h - 2 * this.s) * Math.random(),
-                    y: this.s + (this.h - 2 * this.s) * Math.random(),
-                    ease: 'Sine.inOut',
-                    duration: 500
-                });
+                    targets: rabbit,
+                    alpha: {from: 0, to: 1},
+                    y: `+=${10 * this.s}`,
+                    duration: 1000,
+                    onComplete: () => rabbit.destroy()
+                })
             })
-            .on('pointerdown', () => this.gotoScene('outro'));
+        this.describe(rabbit, "A peaceful rabbit.", "The rabbit hopped away.")
+
+        let garden_door = this.add.text(this.w * 0.1, this.h * 0.6, "back door🚪")
+            .setOrigin(0.5)
+            .setFontSize(this.s * 2)
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.gotoScene('hallway')
+            })
+        this.describe(garden_door, "A door that leads to the back to the house.", "The door creaks as it opens.")
+
+        let pond = this.add.text(this.w * 0.6, this.h * 0.7, "pond 🌊")
+            .setFontSize(this.s * 2)
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.gotoScene('pond')
+            })
+        this.describe(pond, "A small pond in the garden.", "Let's take a closer look.")
     }
 }
 
@@ -127,29 +153,72 @@ class Pond extends AdventureScene {
         super("pond", "Pond");
     }
     onEnter() {
-        this.add.text(this.w * 0.3, this.w * 0.4, "just go back")
+        
+        let jewelry_box = this.add.rectangle(this.w * 0.5, this.h * 0.3, 200, 100, 0xfcedf1)
+            .setInteractive()
+            .on('pointerover', () => this.showMessage("A small jewelry box. It's locked."))
+            .on('pointerdown', () => {
+                if(!this.hasItem('key')) {
+                    this.tweens.add({
+                        targets: jewelry_box,
+                        x: '+=' + this.s,
+                        repeat: 2,
+                        yoyo: true,
+                        ease: 'Sine.inOut',
+                        duration: 100
+                    })
+                    this.showMessage("It needs a key to open.")
+                } else {
+                    this.showMessage("The jewelry box has been opened with the key.")
+                    this.loseItem('key')
+                    this.tweens.add({
+                        targets: [heart, gate],
+                        alpha: {from:0, to: 1},
+                        duration: 1000
+                    })
+                    jewelry_box.destroy()
+                }
+            })
+
+        let heart = this.add.text(this.w * 0.5, this.h * 0.3, "💗")
+            .setFontSize(this.s * 2)
+            .setOrigin(0.5)
+            .setInteractive()
+            .setAlpha(0)
+            .on('pointerdown', () => {
+                this.gainItem('heart')
+                this.tweens.add({
+                    targets: heart,
+                    alpha: {from:1, to: 0},
+                    duration: 1000,
+                    onComplete: ()=> heart.destroy()
+                })
+            })
+        this.describe(heart, "A small heart charm.", "The heart charm reminds you of something.")
+        
+        let gate = this.add.text(this.w * 0.5, this.h * 0.6, "⛩️")
+        .setFontSize(this.s * 2)
+        .setOrigin(0.5)
+        .setInteractive()
+        .setAlpha(0)
+        .on('pointerover', () => this.showMessage("A gate. It seems to be the exit."))
+        .on('pointerdown', () => {
+            if (this.hasItem('heart') && this.hasItem('pen') && this.hasItem('sheet of paper')) {
+                this.showMessage("You write a note on the gate and leave.")
+                this.gotoScene('outro')
+            } else {
+                this.showMessage("A heartfelt note must be written on the shrine in order to leave.")
+            }
+
+        })
+
+        let garden = this.add.text(50, 50, "back to the garden 🌳")
             .setFontSize(this.s * 2)
             .setInteractive()
-            .on('pointerover', () => {
-                this.showMessage("You've got no other choice, really.");
-            })
             .on('pointerdown', () => {
-                this.gotoScene('bedroom');
-            });
-
-        let finish = this.add.text(this.w * 0.6, this.w * 0.2, '(finish the game)')
-            .setInteractive()
-            .on('pointerover', () => {
-                this.showMessage('*giggles*');
-                this.tweens.add({
-                    targets: finish,
-                    x: this.s + (this.h - 2 * this.s) * Math.random(),
-                    y: this.s + (this.h - 2 * this.s) * Math.random(),
-                    ease: 'Sine.inOut',
-                    duration: 500
-                });
+                this.gotoScene('garden')
             })
-            .on('pointerdown', () => this.gotoScene('outro'));
+        this.describe(garden, "Garden", "Going back to the garden...")
     }
 }
 
@@ -174,7 +243,7 @@ class Intro extends Phaser.Scene {
         scene1.on('down', ()=> this.scene.start('bedroom'));
         scene2.on('down', ()=> this.scene.start('hallway'));
         scene3.on('down', ()=> this.scene.start('garden'));
-        scene4.on('down', ()=> this.scene.start('table'));
+        scene4.on('down', ()=> this.scene.start('pond'));
 
 
         let title = this.add.text(this.w/2, this.h+100, "title", {
@@ -256,7 +325,7 @@ class Outro extends Phaser.Scene {
         super('outro');
     }
     create() {
-        this.add.text(50, 50, "That's all!").setFontSize(50);
+        this.add.text(50, 50, "Thank you for playing!").setFontSize(50);
         this.add.text(50, 100, "Click anywhere to restart.").setFontSize(20);
         this.input.on('pointerdown', () => this.scene.start('intro'));
     }
